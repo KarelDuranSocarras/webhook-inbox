@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: webhook-inbox
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+webhook-inbox:
+  max-body-bytes: 1048576
+  token-length: 24
+  default-page-size: 25
+  retention-days: 7
+  rate-limit:
+    enabled: true
+    requests-per-minute: 100
