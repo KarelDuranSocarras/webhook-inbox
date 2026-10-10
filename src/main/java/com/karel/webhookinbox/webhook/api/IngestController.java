@@ -1,6 +1,7 @@
 package com.karel.webhookinbox.webhook.api;
 
 import com.karel.webhookinbox.inbox.application.InboxService;
+import com.karel.webhookinbox.inbox.dto.InboxResponse;
 import com.karel.webhookinbox.webhook.application.WebhookCaptureService;
 import com.karel.webhookinbox.webhook.dto.IncomingWebhook;
 import com.karel.webhookinbox.webhook.dto.IngestResponse;
@@ -35,7 +36,7 @@ public class IngestController {
     @ApiResponse(responseCode = "404", description = "Inbox not found")
     @ApiResponse(responseCode = "413", description = "Payload too large")
     public IngestResponse ingest(@PathVariable String token, HttpServletRequest request) {
-        Long inboxId = inboxService.getByToken(token).id();
+        InboxResponse inbox = inboxService.getByToken(token);
         IncomingWebhook incoming = new IncomingWebhook(
                 request.getMethod(),
                 resolvePath(request, token),
@@ -44,7 +45,7 @@ public class IngestController {
                 request.getContentType(),
                 request.getRemoteAddr(),
                 inputStream(request));
-        WebhookRequestDetail detail = webhookCaptureService.capture(inboxId, incoming);
+        WebhookRequestDetail detail = webhookCaptureService.capture(inbox.id(), inbox.active(), incoming);
         return new IngestResponse(detail.id(), detail.receivedAt());
     }
 

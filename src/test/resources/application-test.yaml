@@ -1,0 +1,4 @@
+webhook-inbox:
+  rate-limit:
+    enabled: false
+  retention-enabled: false

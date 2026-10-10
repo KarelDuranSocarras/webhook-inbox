@@ -34,6 +34,8 @@ webhook-inbox:
   token-length: 24
   default-page-size: 25
   retention-days: ${APP_RETENTION_DAYS:7}
+  retention-enabled: ${APP_RETENTION_ENABLED:true}
+  retention-cron: ${APP_RETENTION_CRON:0 0 * * * *}
   rate-limit:
     enabled: ${APP_RATE_LIMIT_ENABLED:true}
     requests-per-minute: ${APP_RATE_LIMIT_RPM:100}

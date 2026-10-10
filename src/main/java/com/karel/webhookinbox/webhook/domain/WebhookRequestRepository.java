@@ -1,5 +1,6 @@
 package com.karel.webhookinbox.webhook.domain;
 
+import java.time.Instant;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,4 +31,9 @@ public interface WebhookRequestRepository extends JpaRepository<WebhookRequest, 
     @Transactional
     @Query("delete from WebhookRequest w where w.inboxId = :inboxId")
     int deleteByInboxId(@Param("inboxId") Long inboxId);
+
+    @Modifying
+    @Transactional
+    @Query("delete from WebhookRequest w where w.receivedAt < :cutoff")
+    int deleteOlderThan(@Param("cutoff") Instant cutoff);
 }

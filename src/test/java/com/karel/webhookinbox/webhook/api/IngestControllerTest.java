@@ -47,7 +47,7 @@ class IngestControllerTest {
     void setUp() {
         when(inboxService.getByToken("tok"))
                 .thenReturn(new InboxResponse(1L, "tok", "Inbox", null, true, RECEIVED_AT));
-        when(webhookCaptureService.capture(eq(1L), any(IncomingWebhook.class)))
+        when(webhookCaptureService.capture(eq(1L), eq(true), any(IncomingWebhook.class)))
                 .thenReturn(detail());
     }
 
@@ -126,7 +126,7 @@ class IngestControllerTest {
 
     @Test
     void returnsPayloadTooLargeWhenBodyExceedsLimit() throws Exception {
-        when(webhookCaptureService.capture(eq(1L), any(IncomingWebhook.class)))
+        when(webhookCaptureService.capture(eq(1L), eq(true), any(IncomingWebhook.class)))
                 .thenThrow(new PayloadTooLargeException("Request body exceeds the maximum of 8 bytes"));
 
         mockMvc.perform(post("/in/tok/hooks")
@@ -137,7 +137,7 @@ class IngestControllerTest {
 
     private IncomingWebhook captured() {
         ArgumentCaptor<IncomingWebhook> captor = ArgumentCaptor.forClass(IncomingWebhook.class);
-        verify(webhookCaptureService).capture(eq(1L), captor.capture());
+        verify(webhookCaptureService).capture(eq(1L), eq(true), captor.capture());
         return captor.getValue();
     }
 
