@@ -8,8 +8,12 @@ Create an inbox, point any webhook at its ingest URL, and inspect the captured r
 
 ## Demo
 
-<!-- TODO(karel): record and drop the demo GIF here (docs/demo.gif). -->
-_Placeholder — demo GIF coming soon._
+![Demo](./docs/demo.gif)
+
+_This GIF is animated from the screenshots below. For a real screen recording,
+use `./docs/make-gif.sh <recording-file> docs/demo.gif` (requires `ffmpeg`);
+to re-render the screenshot animation use `python3 docs/make-gif.py`. Seed demo
+data with `./docs/seed-demo.sh`._
 
 ## Requirements
 
@@ -84,8 +88,12 @@ different public base URL (for example behind a proxy), set
 
 ## Screenshots
 
-<!-- TODO(karel): add real screenshots. -->
-_Placeholders — screenshots coming soon._
+Seed demo data (`./docs/seed-demo.sh`), open the pages, and capture each view
+into `docs/screenshots/` (see `./docs/make-gif.sh` for the GIF):
+
+![Inbox list](./docs/screenshots/inboxes.png)
+![Inbox detail](./docs/screenshots/inbox.png)
+![Request detail](./docs/screenshots/request.png)
 
 ## Tech stack
 
