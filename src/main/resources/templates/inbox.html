@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${inbox.name})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main>
+    <p class="flash" th:if="${message}" th:text="${message}"></p>
+
+    <h1 th:text="${inbox.name}">Inbox</h1>
+    <p th:if="${inbox.description}" th:text="${inbox.description}"></p>
+
+    <section class="ingest">
+        <label for="ingest-url">Ingest URL</label>
+        <div class="row">
+            <input id="ingest-url" type="text" readonly th:value="${ingestUrl}">
+            <button type="button" data-copy="#ingest-url">Copy</button>
+        </div>
+    </section>
+
+    <form method="post" th:action="@{/inboxes/{token}/delete(token=${inbox.token})}"
+          onsubmit="return confirm('Delete this inbox and all its requests?');">
+        <button type="submit" class="danger">Delete inbox</button>
+    </form>
+
+    <section class="requests">
+        <div class="requests-header">
+            <h2>Requests</h2>
+            <button type="button"
+                    th:attr="hx-post=@{/inboxes/{token}/requests/clear(token=${inbox.token})}"
+                    hx-target="#request-list" hx-swap="outerHTML"
+                    hx-confirm="Delete all requests in this inbox?">Clear all</button>
+        </div>
+
+        <form id="filters"
+              th:attr="hx-get=@{/inboxes/{token}/requests(token=${inbox.token})}"
+              hx-target="#request-list" hx-swap="outerHTML" hx-trigger="submit, change">
+            <select name="method">
+                <option value="">All methods</option>
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="PATCH">PATCH</option>
+                <option value="DELETE">DELETE</option>
+            </select>
+            <input type="text" name="q" placeholder="Filter by path">
+        </form>
+
+        <div th:replace="~{fragments/request-list :: list}"></div>
+    </section>
+</main>
+</body>
+</html>

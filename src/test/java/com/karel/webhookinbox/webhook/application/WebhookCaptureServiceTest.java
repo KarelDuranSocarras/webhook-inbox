@@ -40,7 +40,7 @@ class WebhookCaptureServiceTest {
     @BeforeEach
     void setUp() {
         WebhookInboxProperties properties =
-                new WebhookInboxProperties(MAX_BODY_BYTES, 24, 25, 7, new RateLimit(true, 100));
+                new WebhookInboxProperties(MAX_BODY_BYTES, 24, 25, 7, new RateLimit(true, 100), null);
         service = new WebhookCaptureService(webhookRequestRepository, new ClientIpResolver(), properties);
 
         lenient().when(webhookRequestRepository.save(any(WebhookRequest.class))).thenAnswer(invocation -> {
