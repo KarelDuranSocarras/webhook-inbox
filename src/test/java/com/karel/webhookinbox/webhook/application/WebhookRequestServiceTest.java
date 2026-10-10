@@ -23,7 +23,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
@@ -47,7 +46,7 @@ class WebhookRequestServiceTest {
         when(webhookRequestRepository.search(eq(1L), eq("POST"), eq("stripe"), any(Pageable.class)))
                 .thenReturn(Page.empty());
 
-        service.list(1L, "post", "stripe", PageRequest.of(0, 10));
+        service.list(1L, "post", "stripe", 0, 10);
 
         verify(webhookRequestRepository).search(eq(1L), eq("POST"), eq("stripe"), any(Pageable.class));
     }
@@ -57,22 +56,58 @@ class WebhookRequestServiceTest {
         when(webhookRequestRepository.search(eq(1L), isNull(), isNull(), any(Pageable.class)))
                 .thenReturn(Page.empty());
 
-        service.list(1L, "   ", "   ", PageRequest.of(0, 10));
+        service.list(1L, "   ", "   ", 0, 10);
 
         verify(webhookRequestRepository).search(eq(1L), isNull(), isNull(), any(Pageable.class));
     }
 
     @Test
-    void capsPageSizeAndForcesReceivedAtDescending() {
+    void capsPageSizeAt100AndForcesReceivedAtDescending() {
         when(webhookRequestRepository.search(anyLong(), isNull(), isNull(), any(Pageable.class)))
                 .thenReturn(Page.empty());
 
-        service.list(1L, null, null, PageRequest.of(0, 500));
+        service.list(1L, null, null, 0, 500);
 
         ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
         verify(webhookRequestRepository).search(eq(1L), isNull(), isNull(), captor.capture());
         assertThat(captor.getValue().getPageSize()).isEqualTo(100);
         assertThat(captor.getValue().getSort()).isEqualTo(Sort.by(Sort.Direction.DESC, "receivedAt"));
+    }
+
+    @Test
+    void usesConfiguredDefaultWhenSizeNotExplicitlySet() {
+        when(webhookRequestRepository.search(anyLong(), isNull(), isNull(), any(Pageable.class)))
+                .thenReturn(Page.empty());
+
+        service.list(1L, null, null, 0, 0);
+
+        ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
+        verify(webhookRequestRepository).search(eq(1L), isNull(), isNull(), captor.capture());
+        assertThat(captor.getValue().getPageSize()).isEqualTo(25);
+    }
+
+    @Test
+    void neverAllowsUnboundedSizeOnNegativeInput() {
+        when(webhookRequestRepository.search(anyLong(), isNull(), isNull(), any(Pageable.class)))
+                .thenReturn(Page.empty());
+
+        service.list(1L, null, null, 0, -1);
+
+        ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
+        verify(webhookRequestRepository).search(eq(1L), isNull(), isNull(), captor.capture());
+        assertThat(captor.getValue().getPageSize()).isEqualTo(25);
+    }
+
+    @Test
+    void clampsNegativePageToZero() {
+        when(webhookRequestRepository.search(anyLong(), isNull(), isNull(), any(Pageable.class)))
+                .thenReturn(Page.empty());
+
+        service.list(1L, null, null, -5, 10);
+
+        ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
+        verify(webhookRequestRepository).search(eq(1L), isNull(), isNull(), captor.capture());
+        assertThat(captor.getValue().getPageNumber()).isZero();
     }
 
     @Test

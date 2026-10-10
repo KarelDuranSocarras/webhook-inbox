@@ -3,7 +3,6 @@ package com.karel.webhookinbox.webhook.application;
 import com.karel.webhookinbox.common.error.PayloadTooLargeException;
 import com.karel.webhookinbox.common.web.ClientIpResolver;
 import com.karel.webhookinbox.config.WebhookInboxProperties;
-import com.karel.webhookinbox.inbox.domain.Inbox;
 import com.karel.webhookinbox.webhook.domain.WebhookRequest;
 import com.karel.webhookinbox.webhook.domain.WebhookRequestRepository;
 import com.karel.webhookinbox.webhook.dto.IncomingWebhook;
@@ -30,12 +29,12 @@ public class WebhookCaptureService {
     private final ClientIpResolver clientIpResolver;
     private final WebhookInboxProperties properties;
 
-    public WebhookRequestDetail capture(Inbox inbox, IncomingWebhook incoming) {
+    public WebhookRequestDetail capture(Long inboxId, IncomingWebhook incoming) {
         long maxBodyBytes = properties.maxBodyBytes();
         byte[] payload = readLimited(incoming.body(), maxBodyBytes);
 
         WebhookRequest request = new WebhookRequest();
-        request.setInbox(inbox);
+        request.setInboxId(inboxId);
         request.setMethod(incoming.method());
         request.setPath(incoming.path());
         request.setQueryString(incoming.queryString());
@@ -49,7 +48,7 @@ public class WebhookCaptureService {
 
         WebhookRequest saved = webhookRequestRepository.save(request);
         log.debug("Captured {} {} for inbox {} ({} bytes)",
-                saved.getMethod(), saved.getPath(), inbox.getToken(), saved.getBodySize());
+                saved.getMethod(), saved.getPath(), inboxId, saved.getBodySize());
         return WebhookRequestDetail.from(saved);
     }
 

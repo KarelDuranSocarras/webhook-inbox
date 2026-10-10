@@ -68,7 +68,7 @@ class PersistenceIT extends AbstractJpaTest {
         Inbox inbox = saveInbox("token-headers");
 
         WebhookRequest request = new WebhookRequest();
-        request.setInbox(inbox);
+        request.setInboxId(inbox.getId());
         request.setMethod("POST");
         request.setPath("/hooks");
         request.setHeaders(Map.of("Accept", List.of("application/json", "text/plain")));
@@ -128,7 +128,7 @@ class PersistenceIT extends AbstractJpaTest {
 
     private void saveRequest(Inbox inbox, String method) {
         WebhookRequest request = new WebhookRequest();
-        request.setInbox(inbox);
+        request.setInboxId(inbox.getId());
         request.setMethod(method);
         request.setPath("/hooks");
         request.setHeaders(Map.of("Content-Type", List.of("application/json")));
