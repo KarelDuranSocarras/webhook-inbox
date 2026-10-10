@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div id="request-list" th:fragment="list"
+     th:attr="hx-get=@{/inboxes/{token}/requests(token=${inbox.token})}"
+     hx-trigger="every 5s"
+     hx-include="#filters"
+     hx-swap="outerHTML">
+
+    <p th:if="${requests.isEmpty()}">No requests yet.</p>
+
+    <table class="requests" th:unless="${requests.isEmpty()}">
+        <thead>
+        <tr>
+            <th>Received</th>
+            <th>Method</th>
+            <th>Path</th>
+            <th>Content type</th>
+            <th>Size</th>
+            <th>Source IP</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="r : ${requests}">
+            <td th:text="${r.receivedAt}"></td>
+            <td><span class="method" th:text="${r.method}"></span></td>
+            <td><a th:href="@{/inboxes/{token}/requests/{id}(token=${inbox.token},id=${r.id})}" th:text="${r.path}"></a></td>
+            <td th:text="${r.contentType}"></td>
+            <td th:text="${r.bodySize}"></td>
+            <td th:text="${r.sourceIp}"></td>
+            <td>
+                <button type="button"
+                        th:attr="hx-post=@{/inboxes/{token}/requests/{id}/delete(token=${inbox.token},id=${r.id})}"
+                        hx-target="#request-list" hx-swap="outerHTML"
+                        hx-confirm="Delete this request?">Delete</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

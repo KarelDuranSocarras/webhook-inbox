@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Error')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main>
+    <h1 th:text="${status} ?: 'Error'">Error</h1>
+    <p th:text="${message} ?: 'Something went wrong.'"></p>
+    <p><a th:href="@{/inboxes}">Back to inboxes</a></p>
+</main>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Inboxes')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main>
+    <h1>Inboxes</h1>
+
+    <p class="flash" th:if="${message}" th:text="${message}"></p>
+    <p class="error" th:if="${error}" th:text="${error}"></p>
+
+    <form method="post" th:action="@{/inboxes}" class="create-form">
+        <input type="text" name="name" placeholder="Inbox name" maxlength="120" required>
+        <input type="text" name="description" placeholder="Description (optional)" maxlength="500">
+        <button type="submit">Create inbox</button>
+    </form>
+
+    <table class="inboxes" th:unless="${inboxes.isEmpty()}">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Token</th>
+            <th>Active</th>
+            <th>Created</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="inbox : ${inboxes}">
+            <td><a th:href="@{/inboxes/{token}(token=${inbox.token})}" th:text="${inbox.name}"></a></td>
+            <td><code th:text="${inbox.token}"></code></td>
+            <td th:text="${inbox.active} ? 'yes' : 'no'"></td>
+            <td th:text="${inbox.createdAt}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p th:if="${inboxes.isEmpty()}">No inboxes yet. Create one above.</p>
+</main>
+</body>
+</html>

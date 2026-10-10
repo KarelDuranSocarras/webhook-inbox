@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${request.method} + ' ' + ${request.path})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main>
+    <p><a th:href="@{/inboxes/{token}(token=${inbox.token})}" th:text="'&larr; ' + ${inbox.name}"></a></p>
+
+    <h1><span class="method" th:text="${request.method}"></span> <span th:text="${request.path}"></span></h1>
+
+    <dl class="meta">
+        <dt>Received</dt>
+        <dd th:text="${request.receivedAt}"></dd>
+        <dt>Content type</dt>
+        <dd th:text="${request.contentType}"></dd>
+        <dt>Body size</dt>
+        <dd th:text="${request.bodySize}"></dd>
+        <dt>Source IP</dt>
+        <dd th:text="${request.sourceIp}"></dd>
+        <dt>Query string</dt>
+        <dd th:text="${request.queryString}"></dd>
+    </dl>
+
+    <section>
+        <label for="request-url">URL</label>
+        <div class="row">
+            <input id="request-url" type="text" readonly th:value="${requestUrl}">
+            <button type="button" data-copy="#request-url">Copy URL</button>
+        </div>
+    </section>
+
+    <section>
+        <div class="row">
+            <h2>cURL</h2>
+            <button type="button" data-copy="#curl">Copy cURL</button>
+        </div>
+        <pre id="curl" th:text="${curl}"></pre>
+    </section>
+
+    <section>
+        <h2>Headers</h2>
+        <table class="headers">
+            <tbody>
+            <tr th:each="header : ${request.headers}">
+                <th th:text="${header.key}"></th>
+                <td th:text="${#strings.listJoin(header.value, ', ')}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <div class="row">
+            <h2>Body</h2>
+            <button type="button" data-copy="#body">Copy body</button>
+        </div>
+        <pre id="body" th:text="${request.body}"></pre>
+    </section>
+</main>
+</body>
+</html>

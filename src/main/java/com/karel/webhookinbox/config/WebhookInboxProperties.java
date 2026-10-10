@@ -8,7 +8,8 @@ public record WebhookInboxProperties(
         int tokenLength,
         int defaultPageSize,
         int retentionDays,
-        RateLimit rateLimit
+        RateLimit rateLimit,
+        String baseUrl
 ) {
 
     public record RateLimit(boolean enabled, int requestsPerMinute) {

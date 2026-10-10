@@ -36,7 +36,7 @@ class InboxServiceTest {
     @BeforeEach
     void setUp() {
         WebhookInboxProperties properties =
-                new WebhookInboxProperties(1_048_576L, 24, 25, 7, new RateLimit(true, 100));
+                new WebhookInboxProperties(1_048_576L, 24, 25, 7, new RateLimit(true, 100), null);
         service = new InboxService(inboxRepository, new TokenGenerator(), properties);
     }
 
