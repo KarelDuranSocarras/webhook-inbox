@@ -19,7 +19,7 @@ public interface WebhookRequestRepository extends JpaRepository<WebhookRequest, 
             select w from WebhookRequest w
             where w.inboxId = :inboxId
               and (:method is null or w.method = :method)
-              and (:q is null or w.path ilike concat('%', :q, '%'))
+              and (:q is null or w.path ilike concat('%', cast(:q as string), '%'))
             """)
     Page<WebhookRequest> search(@Param("inboxId") Long inboxId,
                                 @Param("method") String method,
