@@ -11,7 +11,6 @@ import com.karel.webhookinbox.common.error.PayloadTooLargeException;
 import com.karel.webhookinbox.common.web.ClientIpResolver;
 import com.karel.webhookinbox.config.WebhookInboxProperties;
 import com.karel.webhookinbox.config.WebhookInboxProperties.RateLimit;
-import com.karel.webhookinbox.inbox.domain.Inbox;
 import com.karel.webhookinbox.webhook.domain.WebhookRequest;
 import com.karel.webhookinbox.webhook.domain.WebhookRequestRepository;
 import com.karel.webhookinbox.webhook.dto.IncomingWebhook;
@@ -31,22 +30,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class WebhookCaptureServiceTest {
 
     private static final long MAX_BODY_BYTES = 8L;
+    private static final long INBOX_ID = 1L;
 
     @Mock
     private WebhookRequestRepository webhookRequestRepository;
 
     private WebhookCaptureService service;
-    private Inbox inbox;
 
     @BeforeEach
     void setUp() {
         WebhookInboxProperties properties =
                 new WebhookInboxProperties(MAX_BODY_BYTES, 24, 25, 7, new RateLimit(true, 100));
         service = new WebhookCaptureService(webhookRequestRepository, new ClientIpResolver(), properties);
-
-        inbox = new Inbox();
-        inbox.setId(1L);
-        inbox.setToken("tok123");
 
         lenient().when(webhookRequestRepository.save(any(WebhookRequest.class))).thenAnswer(invocation -> {
             WebhookRequest request = invocation.getArgument(0);
@@ -61,7 +56,7 @@ class WebhookCaptureServiceTest {
         IncomingWebhook incoming = incoming("POST", "/stripe/event", "application/json",
                 "{\"a\":1}", Map.of("Content-Type", List.of("application/json")), "192.168.1.10");
 
-        service.capture(inbox, incoming);
+        service.capture(INBOX_ID, incoming);
 
         WebhookRequest saved = captured();
         assertThat(saved.getMethod()).isEqualTo("POST");
@@ -69,7 +64,7 @@ class WebhookCaptureServiceTest {
         assertThat(saved.getBody()).isEqualTo("{\"a\":1}");
         assertThat(saved.getBodySize()).isEqualTo(7);
         assertThat(saved.getContentType()).isEqualTo("application/json");
-        assertThat(saved.getInbox()).isSameAs(inbox);
+        assertThat(saved.getInboxId()).isEqualTo(INBOX_ID);
     }
 
     @Test
@@ -77,7 +72,7 @@ class WebhookCaptureServiceTest {
         IncomingWebhook incoming = incoming("POST", "/large", "text/plain",
                 "0123456789", Map.of(), "192.168.1.10");
 
-        assertThatThrownBy(() -> service.capture(inbox, incoming))
+        assertThatThrownBy(() -> service.capture(INBOX_ID, incoming))
                 .isInstanceOf(PayloadTooLargeException.class);
         verify(webhookRequestRepository, never()).save(any(WebhookRequest.class));
     }
@@ -88,7 +83,7 @@ class WebhookCaptureServiceTest {
         IncomingWebhook incoming = new IncomingWebhook("POST", "/binary", null, Map.of(),
                 "application/octet-stream", "192.168.1.10", new ByteArrayInputStream(binary));
 
-        service.capture(inbox, incoming);
+        service.capture(INBOX_ID, incoming);
 
         WebhookRequest saved = captured();
         assertThat(saved.getBody()).isEqualTo("[binary body, 5 bytes, not stored]");
@@ -100,7 +95,7 @@ class WebhookCaptureServiceTest {
         IncomingWebhook incoming = incoming("POST", "/x", "text/plain", "hi",
                 Map.of("X-Forwarded-For", List.of("203.0.113.7, 10.0.0.1")), "192.168.1.10");
 
-        service.capture(inbox, incoming);
+        service.capture(INBOX_ID, incoming);
 
         assertThat(captured().getSourceIp()).isEqualTo("203.0.113.7");
     }
@@ -109,7 +104,7 @@ class WebhookCaptureServiceTest {
     void fallsBackToRemoteAddress() {
         IncomingWebhook incoming = incoming("POST", "/x", "text/plain", "hi", Map.of(), "192.168.1.10");
 
-        service.capture(inbox, incoming);
+        service.capture(INBOX_ID, incoming);
 
         assertThat(captured().getSourceIp()).isEqualTo("192.168.1.10");
     }

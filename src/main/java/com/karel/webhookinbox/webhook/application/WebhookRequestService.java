@@ -26,10 +26,10 @@ public class WebhookRequestService {
     private final WebhookInboxProperties properties;
 
     @Transactional(readOnly = true)
-    public Page<WebhookRequestSummary> list(Long inboxId, String method, String q, Pageable pageable) {
+    public Page<WebhookRequestSummary> list(Long inboxId, String method, String q, int page, int size) {
         String normalizedMethod = (method == null || method.isBlank()) ? null : method.trim().toUpperCase(Locale.ROOT);
         String normalizedQuery = (q == null || q.isBlank()) ? null : q.trim();
-        return webhookRequestRepository.search(inboxId, normalizedMethod, normalizedQuery, normalize(pageable))
+        return webhookRequestRepository.search(inboxId, normalizedMethod, normalizedQuery, pageable(page, size))
                 .map(WebhookRequestSummary::from);
     }
 
@@ -53,10 +53,9 @@ public class WebhookRequestService {
                 .orElseThrow(() -> new ResourceNotFoundException("Webhook request not found: " + requestId));
     }
 
-    private Pageable normalize(Pageable pageable) {
-        int size = pageable.getPageSize() <= 0
-                ? properties.defaultPageSize()
-                : Math.min(pageable.getPageSize(), MAX_PAGE_SIZE);
-        return PageRequest.of(pageable.getPageNumber(), size, RECEIVED_AT_DESC);
+    private Pageable pageable(int page, int size) {
+        int pageNumber = Math.max(page, 0);
+        int pageSize = size <= 0 ? properties.defaultPageSize() : Math.min(size, MAX_PAGE_SIZE);
+        return PageRequest.of(pageNumber, pageSize, RECEIVED_AT_DESC);
     }
 }

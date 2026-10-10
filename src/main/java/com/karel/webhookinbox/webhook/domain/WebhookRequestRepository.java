@@ -17,7 +17,7 @@ public interface WebhookRequestRepository extends JpaRepository<WebhookRequest, 
 
     @Query("""
             select w from WebhookRequest w
-            where w.inbox.id = :inboxId
+            where w.inboxId = :inboxId
               and (:method is null or w.method = :method)
               and (:q is null or w.path ilike concat('%', :q, '%'))
             """)
@@ -28,6 +28,6 @@ public interface WebhookRequestRepository extends JpaRepository<WebhookRequest, 
 
     @Modifying
     @Transactional
-    @Query("delete from WebhookRequest w where w.inbox.id = :inboxId")
+    @Query("delete from WebhookRequest w where w.inboxId = :inboxId")
     int deleteByInboxId(@Param("inboxId") Long inboxId);
 }
