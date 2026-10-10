@@ -8,6 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.karel.webhookinbox.common.error.PayloadTooLargeException;
+import com.karel.webhookinbox.common.error.ResourceNotFoundException;
 import com.karel.webhookinbox.common.web.ClientIpResolver;
 import com.karel.webhookinbox.config.WebhookInboxProperties;
 import com.karel.webhookinbox.config.WebhookInboxProperties.RateLimit;
@@ -40,7 +41,7 @@ class WebhookCaptureServiceTest {
     @BeforeEach
     void setUp() {
         WebhookInboxProperties properties =
-                new WebhookInboxProperties(MAX_BODY_BYTES, 24, 25, 7, new RateLimit(true, 100), null);
+                new WebhookInboxProperties(MAX_BODY_BYTES, 24, 25, 7, new RateLimit(true, 100), null, true, "0 0 * * * *");
         service = new WebhookCaptureService(webhookRequestRepository, new ClientIpResolver(), properties);
 
         lenient().when(webhookRequestRepository.save(any(WebhookRequest.class))).thenAnswer(invocation -> {
@@ -56,7 +57,7 @@ class WebhookCaptureServiceTest {
         IncomingWebhook incoming = incoming("POST", "/stripe/event", "application/json",
                 "{\"a\":1}", Map.of("Content-Type", List.of("application/json")), "192.168.1.10");
 
-        service.capture(INBOX_ID, incoming);
+        service.capture(INBOX_ID, true, incoming);
 
         WebhookRequest saved = captured();
         assertThat(saved.getMethod()).isEqualTo("POST");
@@ -72,8 +73,18 @@ class WebhookCaptureServiceTest {
         IncomingWebhook incoming = incoming("POST", "/large", "text/plain",
                 "0123456789", Map.of(), "192.168.1.10");
 
-        assertThatThrownBy(() -> service.capture(INBOX_ID, incoming))
+        assertThatThrownBy(() -> service.capture(INBOX_ID, true, incoming))
                 .isInstanceOf(PayloadTooLargeException.class);
+        verify(webhookRequestRepository, never()).save(any(WebhookRequest.class));
+    }
+
+    @Test
+    void rejectsInactiveInboxWithoutPersisting() {
+        IncomingWebhook incoming = incoming("POST", "/inactive", "text/plain", "hi", Map.of(), "192.168.1.10");
+
+        assertThatThrownBy(() -> service.capture(INBOX_ID, false, incoming))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Inbox not found");
         verify(webhookRequestRepository, never()).save(any(WebhookRequest.class));
     }
 
@@ -83,7 +94,7 @@ class WebhookCaptureServiceTest {
         IncomingWebhook incoming = new IncomingWebhook("POST", "/binary", null, Map.of(),
                 "application/octet-stream", "192.168.1.10", new ByteArrayInputStream(binary));
 
-        service.capture(INBOX_ID, incoming);
+        service.capture(INBOX_ID, true, incoming);
 
         WebhookRequest saved = captured();
         assertThat(saved.getBody()).isEqualTo("[binary body, 5 bytes, not stored]");
@@ -95,7 +106,7 @@ class WebhookCaptureServiceTest {
         IncomingWebhook incoming = incoming("POST", "/x", "text/plain", "hi",
                 Map.of("X-Forwarded-For", List.of("203.0.113.7, 10.0.0.1")), "192.168.1.10");
 
-        service.capture(INBOX_ID, incoming);
+        service.capture(INBOX_ID, true, incoming);
 
         assertThat(captured().getSourceIp()).isEqualTo("203.0.113.7");
     }
@@ -104,7 +115,7 @@ class WebhookCaptureServiceTest {
     void fallsBackToRemoteAddress() {
         IncomingWebhook incoming = incoming("POST", "/x", "text/plain", "hi", Map.of(), "192.168.1.10");
 
-        service.capture(INBOX_ID, incoming);
+        service.capture(INBOX_ID, true, incoming);
 
         assertThat(captured().getSourceIp()).isEqualTo("192.168.1.10");
     }

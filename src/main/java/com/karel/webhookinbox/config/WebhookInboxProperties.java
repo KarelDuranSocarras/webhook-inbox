@@ -9,7 +9,9 @@ public record WebhookInboxProperties(
         int defaultPageSize,
         int retentionDays,
         RateLimit rateLimit,
-        String baseUrl
+        String baseUrl,
+        boolean retentionEnabled,
+        String retentionCron
 ) {
 
     public record RateLimit(boolean enabled, int requestsPerMinute) {

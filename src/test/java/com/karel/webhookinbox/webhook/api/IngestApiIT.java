@@ -8,13 +8,18 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 class IngestApiIT extends AbstractWebIT {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Test
     void capturesWebhookAndExposesItThroughApi() {
@@ -98,6 +103,19 @@ class IngestApiIT extends AbstractWebIT {
     void rejectsUnknownToken() {
         ResponseEntity<JsonNode> response = restTemplate.postForEntity(
                 "/in/unknown-token",
+                new HttpEntity<>("x", headers(MediaType.TEXT_PLAIN)),
+                JsonNode.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void rejectsInactiveToken() {
+        String token = createInboxToken();
+        jdbcTemplate.update("update inbox set active = false where token = ?", token);
+
+        ResponseEntity<JsonNode> response = restTemplate.postForEntity(
+                "/in/" + token,
                 new HttpEntity<>("x", headers(MediaType.TEXT_PLAIN)),
                 JsonNode.class);
 

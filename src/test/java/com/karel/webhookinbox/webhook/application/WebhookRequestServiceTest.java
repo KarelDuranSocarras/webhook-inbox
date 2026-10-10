@@ -37,7 +37,7 @@ class WebhookRequestServiceTest {
     @BeforeEach
     void setUp() {
         WebhookInboxProperties properties =
-                new WebhookInboxProperties(1_048_576L, 24, 25, 7, new RateLimit(true, 100), null);
+                new WebhookInboxProperties(1_048_576L, 24, 25, 7, new RateLimit(true, 100), null, true, "0 0 * * * *");
         service = new WebhookRequestService(webhookRequestRepository, properties);
     }
 

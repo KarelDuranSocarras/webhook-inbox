@@ -10,11 +10,6 @@ Create an inbox, point any webhook at its ingest URL, and inspect the captured r
 
 ![Demo](./docs/demo.gif)
 
-_This GIF is animated from the screenshots below. For a real screen recording,
-use `./docs/make-gif.sh <recording-file> docs/demo.gif` (requires `ffmpeg`);
-to re-render the screenshot animation use `python3 docs/make-gif.py`. Seed demo
-data with `./docs/seed-demo.sh`._
-
 ## Requirements
 
 - **Docker** (for the PostgreSQL container and for integration tests).
@@ -82,14 +77,16 @@ different public base URL (for example behind a proxy), set
 | `DB_USER` | `webhookinbox` | Database user. **`dev` profile only.** |
 | `DB_PASSWORD` | `webhookinbox` | Database password. **`dev` profile only.** |
 | `APP_MAX_BODY_BYTES` | `1048576` | Maximum accepted webhook body size (bytes); larger bodies return `413`. |
-| `APP_RETENTION_DAYS` | `7` | Reserved: captured-request retention window. Enforcement lands in a later phase (see Roadmap). |
-| `APP_RATE_LIMIT_ENABLED` | `true` | Reserved: enable ingestion rate limiting. Enforcement lands in a later phase (see Roadmap). |
-| `APP_RATE_LIMIT_RPM` | `100` | Reserved: ingestion requests per minute per client. Enforcement lands in a later phase (see Roadmap). |
+| `APP_RETENTION_DAYS` | `7` | Captured requests older than this many days are deleted by the retention job. |
+| `APP_RETENTION_ENABLED` | `true` | Whether the scheduled retention job runs. |
+| `APP_RETENTION_CRON` | `0 0 * * * *` | Cron expression for the retention job (hourly by default). |
+| `APP_RATE_LIMIT_ENABLED` | `true` | Enable ingestion rate limiting. |
+| `APP_RATE_LIMIT_RPM` | `100` | Ingestion requests per minute per inbox; excess requests return `429 Retry-After: 60`. |
 
 ## Screenshots
 
-Seed demo data (`./docs/seed-demo.sh`), open the pages, and capture each view
-into `docs/screenshots/` (see `./docs/make-gif.sh` for the GIF):
+Seed demo data with Webhook Inbox itself, open the pages, and capture each view
+into `docs/screenshots/` (the GIF in `docs/demo.gif` was produced from them):
 
 ![Inbox list](./docs/screenshots/inboxes.png)
 ![Inbox detail](./docs/screenshots/inbox.png)
@@ -141,7 +138,7 @@ into `docs/screenshots/` (see `./docs/make-gif.sh` for the GIF):
 - [x] Web UI (Thymeleaf + htmx)
 - [x] Integration tests (API + ingestion, Testcontainers)
 - [x] Docs and OpenAPI annotations
-- [ ] Ingestion rate limiting (Bucket4j), scheduled retention, validate `inbox.active`
+- [x] Ingestion rate limiting (Bucket4j), scheduled retention, validate `inbox.active`
 - [ ] Dockerfile, full `docker compose up` (app + DB), CI/CD and GHCR images
 - [ ] `v0.1.0` release, public demo and launch
 

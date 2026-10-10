@@ -1,6 +1,7 @@
 package com.karel.webhookinbox.webhook.application;
 
 import com.karel.webhookinbox.common.error.PayloadTooLargeException;
+import com.karel.webhookinbox.common.error.ResourceNotFoundException;
 import com.karel.webhookinbox.common.web.ClientIpResolver;
 import com.karel.webhookinbox.config.WebhookInboxProperties;
 import com.karel.webhookinbox.webhook.domain.WebhookRequest;
@@ -29,7 +30,10 @@ public class WebhookCaptureService {
     private final ClientIpResolver clientIpResolver;
     private final WebhookInboxProperties properties;
 
-    public WebhookRequestDetail capture(Long inboxId, IncomingWebhook incoming) {
+    public WebhookRequestDetail capture(Long inboxId, boolean inboxActive, IncomingWebhook incoming) {
+        if (!inboxActive) {
+            throw new ResourceNotFoundException("Inbox not found");
+        }
         long maxBodyBytes = properties.maxBodyBytes();
         byte[] payload = readLimited(incoming.body(), maxBodyBytes);
 

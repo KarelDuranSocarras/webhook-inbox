@@ -13,7 +13,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 class IngestUrlResolverTest {
 
     private static WebhookInboxProperties properties(String baseUrl) {
-        return new WebhookInboxProperties(1_048_576L, 24, 25, 7, new RateLimit(true, 100), baseUrl);
+        return new WebhookInboxProperties(1_048_576L, 24, 25, 7, new RateLimit(true, 100), baseUrl, true, "0 0 * * * *");
     }
 
     @AfterEach
