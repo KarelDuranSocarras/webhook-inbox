@@ -1,6 +1,7 @@
 package com.karel.webhookinbox.webhook.dto;
 
 import com.karel.webhookinbox.webhook.domain.WebhookRequest;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 
 public record WebhookRequestSummary(
@@ -8,6 +9,7 @@ public record WebhookRequestSummary(
         String method,
         String path,
         String contentType,
+        @Schema(description = "Raw body size in bytes")
         int bodySize,
         String sourceIp,
         Instant receivedAt

@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.karel</groupId>
     <artifactId>webhook-inbox</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <name>webhook-inbox</name>
     <description>webhook-inbox</description>
     <url/>

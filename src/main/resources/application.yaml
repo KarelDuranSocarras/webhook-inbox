@@ -30,10 +30,10 @@ springdoc:
     path: /swagger-ui.html
 
 webhook-inbox:
-  max-body-bytes: 1048576
+  max-body-bytes: ${APP_MAX_BODY_BYTES:1048576}
   token-length: 24
   default-page-size: 25
-  retention-days: 7
+  retention-days: ${APP_RETENTION_DAYS:7}
   rate-limit:
-    enabled: true
-    requests-per-minute: 100
+    enabled: ${APP_RATE_LIMIT_ENABLED:true}
+    requests-per-minute: ${APP_RATE_LIMIT_RPM:100}
