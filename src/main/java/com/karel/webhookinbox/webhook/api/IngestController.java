@@ -5,6 +5,9 @@ import com.karel.webhookinbox.webhook.application.WebhookCaptureService;
 import com.karel.webhookinbox.webhook.dto.IncomingWebhook;
 import com.karel.webhookinbox.webhook.dto.IngestResponse;
 import com.karel.webhookinbox.webhook.dto.WebhookRequestDetail;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "Ingestion", description = "Webhook ingestion endpoint")
 @RequiredArgsConstructor
 public class IngestController {
 
@@ -27,6 +31,9 @@ public class IngestController {
     private final WebhookCaptureService webhookCaptureService;
 
     @RequestMapping({"/in/{token}", "/in/{token}/**"})
+    @Operation(summary = "Receive a webhook and capture it")
+    @ApiResponse(responseCode = "404", description = "Inbox not found")
+    @ApiResponse(responseCode = "413", description = "Payload too large")
     public IngestResponse ingest(@PathVariable String token, HttpServletRequest request) {
         Long inboxId = inboxService.getByToken(token).id();
         IncomingWebhook incoming = new IncomingWebhook(

@@ -1,10 +1,12 @@
 package com.karel.webhookinbox.inbox.dto;
 
 import com.karel.webhookinbox.inbox.domain.Inbox;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 
 public record InboxResponse(
         Long id,
+        @Schema(description = "Token used to build the ingest URL (/in/{token})")
         String token,
         String name,
         String description,
