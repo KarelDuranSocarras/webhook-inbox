@@ -16,5 +16,32 @@ services:
       timeout: 3s
       retries: 10
 
+  app:
+    build: .
+    image: ghcr.io/karelduransocarras/webhook-inbox:edge
+    container_name: webhook-inbox-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_URL: jdbc:postgresql://postgres:5432/webhookinbox
+      DB_USER: webhookinbox
+      DB_PASSWORD: webhookinbox
+      APP_MAX_BODY_BYTES: ${APP_MAX_BODY_BYTES:-1048576}
+      APP_RETENTION_DAYS: ${APP_RETENTION_DAYS:-7}
+      APP_RETENTION_ENABLED: ${APP_RETENTION_ENABLED:-true}
+      APP_RETENTION_CRON: ${APP_RETENTION_CRON:-0 0 * * * *}
+      APP_RATE_LIMIT_ENABLED: ${APP_RATE_LIMIT_ENABLED:-true}
+      APP_RATE_LIMIT_RPM: ${APP_RATE_LIMIT_RPM:-100}
+      WEBHOOK_INBOX_BASE_URL: ${WEBHOOK_INBOX_BASE_URL:-http://localhost:8080}
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
 volumes:
   pgdata:

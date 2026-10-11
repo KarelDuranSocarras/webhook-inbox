@@ -1,0 +1,8 @@
+spring:
+  config:
+    activate:
+      on-profile: docker
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://postgres:5432/webhookinbox}
+    username: ${DB_USER:webhookinbox}
+    password: ${DB_PASSWORD:webhookinbox}

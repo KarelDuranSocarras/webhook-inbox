@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 ![Java 21](https://img.shields.io/badge/Java-21-blue.svg)
+[![verify](https://github.com/KarelDuranSocarras/webhook-inbox/actions/workflows/verify.yml/badge.svg)](https://github.com/KarelDuranSocarras/webhook-inbox/actions/workflows/verify.yml)
 
 A self-hosted, RequestBin-style webhook inspector.
 Create an inbox, point any webhook at its ingest URL, and inspect the captured requests — no account, no third-party service.
@@ -15,10 +16,21 @@ Create an inbox, point any webhook at its ingest URL, and inspect the captured r
 - **Docker** (for the PostgreSQL container and for integration tests).
 - **Java 21** — only needed if you want to run or build the app from source.
 
-## Quick start (development)
+## Quick start (Docker)
 
-> Running the whole app with `docker compose up` is **coming soon**.
-> For now, Docker runs only the database; the app runs from source.
+Everything (app + PostgreSQL) with a single command:
+
+```bash
+docker compose up --build
+```
+
+Then open <http://localhost:8080>. The app image is published to GHCR as
+`ghcr.io/karelduransocarras/webhook-inbox` (tags `edge`, `main-<sha>`, and
+`vX.Y.Z` / `latest` for releases).
+
+Copy `.env.example` to `.env` to override defaults (ports, `APP_*` settings).
+
+## Quick start (development)
 
 1. Start PostgreSQL:
 
@@ -139,7 +151,7 @@ into `docs/screenshots/` (the GIF in `docs/demo.gif` was produced from them):
 - [x] Integration tests (API + ingestion, Testcontainers)
 - [x] Docs and OpenAPI annotations
 - [x] Ingestion rate limiting (Bucket4j), scheduled retention, validate `inbox.active`
-- [ ] Dockerfile, full `docker compose up` (app + DB), CI/CD and GHCR images
+- [x] Dockerfile, full `docker compose up` (app + DB), CI/CD and GHCR images
 - [ ] `v0.1.0` release, public demo and launch
 
 ## Contributing
