@@ -1,6 +1,7 @@
 name: publish
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     tags: ['v*']
@@ -32,12 +33,20 @@ jobs:
         shell: bash
         run: |
           IMAGE="ghcr.io/karelduransocarras/webhook-inbox"
-          if [[ "$GITHUB_REF" =~ ^refs/tags/v ]]; then
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
             VERSION="${GITHUB_REF#refs/tags/v}"
             TAGS="${IMAGE}:v${VERSION},${IMAGE}:latest"
-          else
+          elif [[ "${GITHUB_REF}" == refs/heads/main ]]; then
             SHA_SHORT="${GITHUB_SHA::8}"
             TAGS="${IMAGE}:edge,${IMAGE}:main-${SHA_SHORT}"
+          else
+            BRANCH="${GITHUB_REF_NAME}"
+            case "${BRANCH}" in
+              development) BRANCH_LABEL="dev" ;;
+              *) BRANCH_LABEL="${BRANCH}" ;;
+            esac
+            SHA_SHORT="${GITHUB_SHA::8}"
+            TAGS="${IMAGE}:edge,${IMAGE}:${BRANCH_LABEL}-${SHA_SHORT}"
           fi
           echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
 

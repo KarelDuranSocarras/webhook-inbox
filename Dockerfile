@@ -3,9 +3,8 @@ FROM eclipse-temurin:21-jdk-jammy AS build
 WORKDIR /workspace
 COPY .mvn .mvn
 COPY mvnw pom.xml ./
-RUN chmod +x mvnw && ./mvnw -B -DskipTests dependency:go-offline
 COPY src src
-RUN ./mvnw -B -DskipTests package
+RUN chmod +x mvnw && ./mvnw -B -DskipTests package
 
 # ---- runtime stage (Debian/Ubuntu base: curl is available for the healthcheck) ----
 FROM eclipse-temurin:21-jre-jammy
