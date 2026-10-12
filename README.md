@@ -3,6 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 ![Java 21](https://img.shields.io/badge/Java-21-blue.svg)
 [![verify](https://github.com/KarelDuranSocarras/webhook-inbox/actions/workflows/verify.yml/badge.svg)](https://github.com/KarelDuranSocarras/webhook-inbox/actions/workflows/verify.yml)
+[![Release](https://img.shields.io/github/v/release/KarelDuranSocarras/webhook-inbox)](https://github.com/KarelDuranSocarras/webhook-inbox/releases/latest)
 
 A self-hosted, RequestBin-style webhook inspector.
 Create an inbox, point any webhook at its ingest URL, and inspect the captured requests — no account, no third-party service.
@@ -18,15 +19,21 @@ Create an inbox, point any webhook at its ingest URL, and inspect the captured r
 
 ## Quick start (Docker)
 
-Everything (app + PostgreSQL) with a single command:
+Everything (app + PostgreSQL) with a single command, using the published image:
 
 ```bash
-docker compose up --build
+docker compose pull && docker compose up -d --no-build
 ```
 
 Then open <http://localhost:8080>. The app image is published to GHCR as
 `ghcr.io/karelduransocarras/webhook-inbox` (tags `edge`, `main-<sha>`, and
 `vX.Y.Z` / `latest` for releases).
+
+To build the image from source instead of pulling it:
+
+```bash
+docker compose up --build
+```
 
 Copy `.env.example` to `.env` to override defaults (ports, `APP_*` settings).
 
@@ -144,6 +151,19 @@ into `docs/screenshots/` (the GIF in `docs/demo.gif` was produced from them):
              Flyway migrations
 ```
 
+## Releases and image tags
+
+| Ref | Image tags | Meaning |
+| --- | --- | --- |
+| `main` branch | `edge` + `main-<sha8>` | Latest stable, always releaseable. |
+| `vX.Y.Z` tag | `vX.Y.Z` + `latest` | Published releases; `latest` always points to the newest tagged release. |
+| `development` branch | `dev-<sha8>` | Work in progress. |
+
+`main` = stable/releaseable · `development` = work in progress.
+Features go through a PR into `development`; once stable, `development` goes
+through a PR into `main`. Release tags are placed on the `main` merge commit.
+See [`CHANGELOG.md`](./CHANGELOG.md) for the version history.
+
 ## Roadmap
 
 - [x] Core domain, persistence, REST API and webhook ingestion
@@ -152,11 +172,11 @@ into `docs/screenshots/` (the GIF in `docs/demo.gif` was produced from them):
 - [x] Docs and OpenAPI annotations
 - [x] Ingestion rate limiting (Bucket4j), scheduled retention, validate `inbox.active`
 - [x] Dockerfile, full `docker compose up` (app + DB), CI/CD and GHCR images
-- [ ] `v0.1.0` release, public demo and launch
+- [x] `v0.1.0` release, public demo and launch
 
 ## Contributing
 
-See [`CONTRIBUTING.md`](./CONTRIBUTING.md) _(coming soon)_.
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ## License
 
